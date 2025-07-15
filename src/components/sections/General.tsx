@@ -1,3 +1,4 @@
+import DateSelect from "../DateSelect";
 import DateTimeSelect from "../DateTimeSelect";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
@@ -44,9 +45,48 @@ export default function SectionGeneral() {
                 <Input className="mt-4" placeholder="Klassenlehrkraft oder Tutor:in" minLength={3} maxLength={50} />
                 <Input className="mt-2" placeholder="E-Mail der Klassenlehrkraft oder Tutor:in (iServ)" type="email" />
 
+                <p className="font-normal underline text-foreground mt-4 mb-2">Ankündigung der Wahl:</p>
+                <p>
+                    Die Wahl wurde fristgerecht mindestens drei Tage im Voraus, nämlich am <DateSelect /> mittels
+                    <div className="inline-block">
+                        <Select>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="mündlich im Klassenraum">mündlicher Ansage im Unterricht</SelectItem>
+                                <SelectItem value="per iServ-Nachricht">iServ-E-Mail</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>{" "}
+                    durch{" "}
+                    <div className="inline-block">
+                        <Select>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Klassenlehrkraft">die Klassenlehrkraft</SelectItem>
+                                <SelectItem value="Tutor:in">den:die Tutor:in</SelectItem>
+                                <SelectItem value="Schüler:in">den:die Wahlleiter:in</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    gegenüber allen Wahlberechtigten angekündigt.
+                </p>
+
                 <p className="font-normal underline text-foreground mt-4 mb-2">Beginn der Wahl:</p>
 
                 <DateTimeSelect />
+
+                <p className="font-normal underline text-foreground mt-4 mb-2">Anzahl der Schüler:innen</p>
+                <p>
+                    Es sind insgesamt{" "}
+                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block" />{" "}
+                    Schüler:innen wahlberechtigt. Davon sind{" "}
+                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block" /> bei der
+                    Wahl anwesend.
+                </p>
             </CardContent>
         </Card>
     );

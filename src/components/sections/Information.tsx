@@ -1,10 +1,13 @@
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon, ExternalLinkIcon } from "lucide-react";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 export default function ClassRepElectionInfo() {
     return (
-        <div className="space-y-4 p-4">
+        <div className="space-y-4 py-4">
             <h2 className="text-xl font-bold">Wichtige Informationen zur Klassensprecherwahl</h2>
             <Alert variant={"destructive"} className="border-destructive">
                 <AlertCircleIcon />
@@ -39,12 +42,12 @@ export default function ClassRepElectionInfo() {
                         </ul>
                         <p>
                             Beide werden für jeweils ein Schuljahr gewählt (§ 1 Abs. 1 VO-SV). Der:die
-                            Klassensprecher:in uns sein:e Stellvertreter:in müssen in zwei getrennten Wahlgängen gewählt
+                            Klassensprecher:in und sein:e Stellvertreter:in müssen in zwei getrennten Wahlgängen gewählt
                             werden, es erfolgt keinesfalls eine Geschlechtertrennung o.ä.. Eine Beteiligung aller
-                            Geschlechter an der Wahl ist aber wünschenswert (§ 3 Abs. 4 VO-SV). Es ist{" "}
-                            <strong>nicht</strong> erforderlich, dass der:die Stellvertreter:in ein anderes Geschlecht
-                            hat als der:die Klassensprecher:in. Einzig der Wählerwille ist entscheidend, es dürfen in
-                            beiden Wahlgängen alle Geschlechter kandidieren.
+                            Geschlechter an der Wahl ist wünschenswert. Es ist <strong>nicht</strong> erforderlich, dass
+                            der:die Stellvertreter:in ein anderes Geschlecht hat als der:die Klassensprecher:in. Einzig
+                            der Wählerwille ist entscheidend, es dürfen in beiden Wahlgängen alle Geschlechter
+                            kandidieren.
                         </p>
                     </AccordionContent>
                 </AccordionItem>
@@ -91,12 +94,32 @@ export default function ClassRepElectionInfo() {
                         <h2 className="text-xl font-semibold">🧾 So läuft die Wahl ab</h2>
                         <ol className="list-decimal list-inside space-y-1">
                             <li>Wahlausschuss bilden (mind. Wahlleitung + 2 Wahlhelfer:innen)</li>
-                            <li>Kandidat:innenliste an der Tafel sichtbar aufstellen</li>
-                            <li>Geheime Wahl mit Stimmzetteln in zwei getrennten Wahlgängen</li>
-                            <li>Auszählung durch den Wahlausschuss</li>
-                            <li>Stichwahl oder Los bei Gleichstand (§ 7 VO-SV, § 23 SV-GO)</li>
-                            <li>Bekanntgabe des Ergebnisses</li>
+                            <li>
+                                Zwei getrennte Wahlgänge für Klassensprecher:in und Stellvertreter:in durchführen (§ 6
+                                VO-SV)
+                                <ol className="list-decimal list-inside ml-4">
+                                    <li>Kandidat:innen aufstellen</li>
+                                    <li>Mit Stimmzetteln geheim wählen</li>
+                                    <li>Stimmzettel auszählen</li>
+                                    <li>Bei Stimmgleichheit Stichwahl zwischen den führenden Kandidat:innen</li>
+                                    <li>ggf. Losen, wenn erneut Stimmgleichheit besteht</li>
+                                    <li>Ergebnis bekanntgeben</li>
+                                </ol>
+                            </li>
+                            <li>Wahlniederschrift ausdrucken und unterschreiben</li>
                         </ol>
+                        <p className="mt-2">
+                            Wir empfehlen, die zwei Wahlgänge tatsächlich nacheinander durchzuführen, sodass ein
+                            Kandidat, der die Wahl zur:m Klassensprecher:in knapp verliert, weiterhin Stellvertreter:in
+                            werden kann. Die Wahl kann auch in einem Wahlgang erfolgen, sofern getrennte Abstimmungen
+                            sichergestellt sind (= zwei Stimmen pro Stimmzettel aus getrennten Listen). In diesem Fall
+                            kann aber jede:r Kandidat:in nur für eines der beiden Ämter kandidieren.
+                            <br />
+                            Die Wahlniederschrift sollte während der Wahl durchgehend geführt werden, sodass nach der
+                            Wahl keine Informationen fehlen oder Überraschungen auftreten. Als Faustregel gilt: Ist die
+                            Wahlniederschrift auf dieser Website vollständig ausgefüllt, ist die Wahrscheinlichkeit von
+                            Durchführungsfehlern sehr gering.
+                        </p>
                     </AccordionContent>
                 </AccordionItem>
 
@@ -150,20 +173,49 @@ export default function ClassRepElectionInfo() {
                         <h2 className="text-base font-medium">📚 Rechtsgrundlagen</h2>
                         <ul className="list-disc list-inside">
                             <li>
-                                <a href="https://www.rv.hessenrecht.hessen.de/perma?j=Sch%2FStudVtrV_HE_Inhaltsverzeichnis">
+                                <a
+                                    href="https://www.rv.hessenrecht.hessen.de/perma?j=Sch%2FStudVtrV_HE_Inhaltsverzeichnis"
+                                    className="hover:underline inline-flex items-center gap-1 focus-visible:underline"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <ExternalLinkIcon size={16} className="inline" />
                                     Verordnung über die Schülervertretungen in Hessen (VO-SV), §§ 1-8
                                 </a>
                             </li>
                             <li>
-                                <a href="https://sv.grb.wiki/de/Rechtliches/SV-GO">
+                                <a
+                                    href="https://sv.grb.wiki/de/Rechtliches/SV-GO"
+                                    className="hover:underline inline-flex items-center gap-1 focus-visible:underline"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <ExternalLinkIcon size={16} className="inline" />
                                     Schülerverfassung / Geschäftsordnung der SV (SV-GO), §§ 10-24
                                 </a>
                             </li>
                         </ul>
-                        <p>Fragen? Wendet euch gerne an den SV-Vorstand oder eure Verbindungslehrkraft.</p>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
+
+            <div className="pt-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Bestätigung durch die Klassenlehrkraft</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-start gap-2">
+                            <Checkbox id="confirmation-checkbox" className="mt-0.5 border-foreground" />
+                            <Label htmlFor="confirmation-checkbox" className="text-sm block">
+                                Ich, die Klassenlehrkraft, bestätige, die Informationen zur Klassensprecherwahl{" "}
+                                <strong>vollständig</strong> gelesen und verstanden und meine Klasse, insbesondere den
+                                Wahlausschuss, über die Wahlvorschriften angemessen unterrichtet zu haben.
+                            </Label>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }

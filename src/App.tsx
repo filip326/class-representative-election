@@ -1,6 +1,8 @@
 import svLogo from "./assets/sv-logo.png";
+import SectionCandidates from "./components/sections/Candidates";
 import SectionGeneral from "./components/sections/General";
 import SectionInformation from "./components/sections/Information";
+import SectionStichwahl from "./components/sections/Stichwahl";
 import SectionVotingCommittee from "./components/sections/VotingCommittee";
 
 function App() {
@@ -15,6 +17,13 @@ function App() {
                 <SectionInformation />
                 <SectionGeneral />
                 <SectionVotingCommittee />
+
+                <h2 className="text-xl font-bold">1. Wahlgang: Klassensprecher:in</h2>
+
+                <SectionCandidates electionType="representative" />
+                <SectionStichwahl electionType="representative" />
+                
+
             </div>
 
             <footer>
