@@ -18,6 +18,8 @@ export default function DateTimeSelect() {
 
     const [time, setTime] = React.useState<string>("");
 
+    const checkboxId = React.useId();
+
     return (
         <div className="flex gap-4">
             <div className="flex flex-col gap-3">
@@ -25,7 +27,7 @@ export default function DateTimeSelect() {
                     <PopoverTrigger asChild>
                         <Button
                             variant="outline"
-                            id="date-picker"
+                            id={React.useId()}
                             className="w-40 justify-between font-normal text-foreground"
                         >
                             {date
@@ -45,6 +47,7 @@ export default function DateTimeSelect() {
                             selected={date}
                             captionLayout="dropdown"
                             ISOWeek
+                            showWeekNumber
                             onSelect={(date) => {
                                 setDate(date);
                                 setOpen(false);
@@ -57,7 +60,7 @@ export default function DateTimeSelect() {
             <div className="flex flex-col gap-3">
                 <Input
                     type="time"
-                    id="time-picker"
+                    id={React.useId()}
                     value={time}
                     onChange={(e) => {
                         setTime(e.target.value);
@@ -68,7 +71,7 @@ export default function DateTimeSelect() {
             </div>
             <div className="flex items-center space-x-2">
                 <Checkbox
-                    id="jetzt-checkbox"
+                    id={checkboxId}
                     checked={isJetztChecked}
                     onCheckedChange={() => {
                         if (!isJetztChecked) setIsJetztChecked(true);
@@ -83,7 +86,7 @@ export default function DateTimeSelect() {
                     }}
                 />
                 <Label
-                    htmlFor="jetzt-checkbox"
+                    htmlFor={checkboxId}
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                     Jetzt

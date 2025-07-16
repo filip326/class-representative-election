@@ -50,16 +50,21 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                     <div className="space-y-2">
                         <div className="flex items-center gap-4">
                             <span className="flex-1">{candidateList[0]}</span>
-                            <Button
-                                variant="destructive"
-                                size="icon"
-                                onClick={() => {
-                                    setCandidateList([]);
-                                    setSingleCandidateVotes({ yes: 0, no: 0, abstain: 0 });
-                                }}
-                            >
-                                <TrashIcon />
-                            </Button>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => {
+                                            setCandidateList([]);
+                                            setSingleCandidateVotes({ yes: 0, no: 0, abstain: 0 });
+                                        }}
+                                    >
+                                        <TrashIcon />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Kandidatur zurückziehen</TooltipContent>
+                            </Tooltip>
                         </div>
                         <p className="text-xs text-muted-foreground">
                             Ist nur ein:e Kandidat:in aufgestellt, so wird zwischen "Ja" und "Nein" abgestimmt.
@@ -139,7 +144,10 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                             value={candidateVotes[index] === -1 ? "" : candidateVotes[index]}
                                             onChange={(e) => {
                                                 const votes = e.target.value === "" ? -1 : parseInt(e.target.value, 10);
-                                                setCandidateVotes({ ...candidateVotes, [index]: isNaN(votes) ? -1 : votes });
+                                                setCandidateVotes({
+                                                    ...candidateVotes,
+                                                    [index]: isNaN(votes) ? -1 : votes,
+                                                });
                                             }}
                                             className="w-27 text-right"
                                         />

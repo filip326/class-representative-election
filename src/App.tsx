@@ -1,9 +1,13 @@
 import svLogo from "./assets/sv-logo.png";
 import SectionCandidates from "./components/sections/Candidates";
+import SectionEnd from "./components/sections/End";
+import SectionExport from "./components/sections/Export";
 import SectionGeneral from "./components/sections/General";
 import SectionInformation from "./components/sections/Information";
 import SectionStichwahl from "./components/sections/Stichwahl";
 import SectionVotingCommittee from "./components/sections/VotingCommittee";
+import SectionWinner from "./components/sections/Winner";
+import { Separator } from "./components/ui/separator";
 
 function App() {
     return (
@@ -22,7 +26,21 @@ function App() {
 
                 <SectionCandidates electionType="representative" />
                 <SectionStichwahl electionType="representative" />
+                <SectionWinner  electionType="representative" />
+
+                <Separator />
                 
+                <h2 className="text-xl font-bold">2. Wahlgang: stellvertretende:r Klassensprecher:in</h2>
+
+                <SectionCandidates electionType="deputy" />
+                <SectionStichwahl electionType="deputy" />
+                <SectionWinner  electionType="deputy" />
+
+                <Separator />
+
+                <h2 className="text-xl font-bold">Abschluss</h2>
+                <SectionEnd />
+                <SectionExport />
 
             </div>
 

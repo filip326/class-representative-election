@@ -82,9 +82,9 @@ export default function SectionGeneral() {
                 <p className="font-normal underline text-foreground mt-4 mb-2">Anzahl der Schüler:innen</p>
                 <p>
                     Es sind insgesamt{" "}
-                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block" />{" "}
+                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block text-center" />{" "}
                     Schüler:innen wahlberechtigt. Davon sind{" "}
-                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block" /> bei der
+                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block text-center" /> bei der
                     Wahl anwesend.
                 </p>
             </CardContent>

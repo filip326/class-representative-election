@@ -11,7 +11,7 @@ export default function DateSelect() {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button variant="outline" id="date-picker" className="w-40 justify-between font-normal text-foreground">
+                <Button variant="outline" id={React.useId()} className="w-40 justify-between font-normal text-foreground">
                     {date
                         ? date.toLocaleDateString("de-DE", {
                               day: "2-digit",
@@ -29,6 +29,7 @@ export default function DateSelect() {
                     selected={date}
                     captionLayout="dropdown"
                     ISOWeek
+                    showWeekNumber
                     onSelect={(date) => {
                         setDate(date);
                         setOpen(false);
