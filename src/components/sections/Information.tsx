@@ -4,8 +4,11 @@ import { AlertCircleIcon, ExternalLinkIcon } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { useElectionContext } from "@/context/useElectionContext";
 
 export default function ClassRepElectionInfo() {
+    const { electionData, setElectionData } = useElectionContext();
+
     return (
         <div className="space-y-4 py-4">
             <h2 className="text-xl font-bold">Wichtige Informationen zur Klassensprecherwahl</h2>
@@ -206,7 +209,20 @@ export default function ClassRepElectionInfo() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-start gap-2">
-                            <Checkbox id="confirmation-checkbox" className="mt-0.5 border-foreground" />
+                            <Checkbox
+                                id="confirmation-checkbox"
+                                className="mt-0.5 border-foreground"
+                                checked={electionData.general.teacherReadInformationConfirm}
+                                onCheckedChange={(checked) =>
+                                    setElectionData({
+                                        ...electionData,
+                                        general: {
+                                            ...electionData.general,
+                                            teacherReadInformationConfirm: checked === true,
+                                        },
+                                    })
+                                }
+                            />
                             <Label htmlFor="confirmation-checkbox" className="text-sm block">
                                 Ich, die Klassenlehrkraft, bestätige, die Informationen zur Klassensprecherwahl{" "}
                                 <strong>vollständig</strong> gelesen und verstanden und meine Klasse, insbesondere den

@@ -1,8 +1,12 @@
 import { DownloadIcon, FileIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { useElectionContext } from "@/context/useElectionContext";
+
 
 export default function SectionExport() {
+    const { electionData } = useElectionContext();
+
     return (
         <Card>
             <CardHeader>
@@ -24,6 +28,11 @@ export default function SectionExport() {
                     Walniederschrift herunterladen
                     <FileIcon />
                 </Button>
+
+                <div className="mt-4">
+                    <h2 className="text-xl font-bold">Export</h2>
+                    <pre>{JSON.stringify(electionData, null, 2)}</pre>
+                </div>
             </CardContent>
         </Card>
     );

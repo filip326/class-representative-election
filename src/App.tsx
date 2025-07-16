@@ -8,10 +8,11 @@ import SectionStichwahl from "./components/sections/Stichwahl";
 import SectionVotingCommittee from "./components/sections/VotingCommittee";
 import SectionWinner from "./components/sections/Winner";
 import { Separator } from "./components/ui/separator";
+import { ElectionProvider } from "./context/ElectionContext";
 
 function App() {
     return (
-        <>
+        <ElectionProvider>
             <div className="flex flex-col mt-5 gap-10 max-w-[800px] w-[90vw] mx-auto">
                 <div className="flex flex-row items-center justify-center gap-5">
                     <img src={svLogo} className="max-h-20" />
@@ -50,7 +51,7 @@ function App() {
                 <a href="">Datenschutz</a>
 
             </footer>
-        </>
+        </ElectionProvider>
     );
 }
 

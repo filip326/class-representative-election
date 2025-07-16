@@ -1,9 +1,12 @@
+import { useElectionContext } from "@/context/useElectionContext";
 import DateTimeSelect from "../DateTimeSelect";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Textarea } from "../ui/textarea";
 
 
 export default function SectionEnd() {
+
+    const { electionData, setElectionData } = useElectionContext();
 
     return (
         <Card>
@@ -16,7 +19,17 @@ export default function SectionEnd() {
             <CardContent>
 
                 <p>Ende der Wahl:</p>
-                <DateTimeSelect />
+                <DateTimeSelect
+                    value={
+                        electionData.general.electionEnd
+                    }
+                    onDateChange={(date) =>
+                        setElectionData({
+                            ...electionData,
+                            general: { ...electionData.general, electionEnd: date },
+                        })
+                    }
+                />
 
                 <p className="mt-2">
                     Platz für Anmerkungen, Ergänzungen, evtl. Unregelmäßigkeiten bei der Durchführung der Wahl:

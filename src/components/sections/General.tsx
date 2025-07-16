@@ -1,3 +1,4 @@
+import { useElectionContext } from "@/context/useElectionContext";
 import DateSelect from "../DateSelect";
 import DateTimeSelect from "../DateTimeSelect";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -5,6 +6,8 @@ import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 export default function SectionGeneral() {
+    const { electionData, setElectionData } = useElectionContext();
+
     return (
         <Card>
             <CardHeader>
@@ -15,7 +18,12 @@ export default function SectionGeneral() {
                 <p className="font-normal underline text-foreground mb-4">Angaben zur Klasse / zum Tutorium:</p>
                 <div className="flex flex-row gap-4 justify-around">
                     <div className="w-1/4 p-0 m-0">
-                        <Select>
+                        <Select
+                            value={electionData.general.year}
+                            onValueChange={(value) =>
+                                setElectionData({ ...electionData, general: { ...electionData.general, year: value } })
+                            }
+                        >
                             <SelectTrigger>
                                 <SelectValue placeholder="Jahrgangsstufe" />
                             </SelectTrigger>
@@ -32,7 +40,18 @@ export default function SectionGeneral() {
                         </Select>
                     </div>
                     <div className="flex flex-col w-full items-start justify-start p-0 m-0">
-                        <Input placeholder="Klasse oder Tut-Kürzel" minLength={3} maxLength={3} />
+                        <Input
+                            placeholder="Klasse oder Tut-Kürzel"
+                            minLength={3}
+                            maxLength={3}
+                            value={electionData.general.tutorium}
+                            onChange={(e) =>
+                                setElectionData({
+                                    ...electionData,
+                                    general: { ...electionData.general, tutorium: e.target.value },
+                                })
+                            }
+                        />
                         <p className="text-muted-foreground text-xs ml-2">
                             Bitte die Klasse im folgenden Format angeben, z.B. <code>05a</code>, <code>09f</code>,{" "}
                             <code>10c</code>
@@ -42,26 +61,81 @@ export default function SectionGeneral() {
                     </div>
                 </div>
                 <p className="font-normal underline text-foreground mt-3 mb-2">Klassenlehrkraft / Tutor</p>
-                <Input className="mt-4" placeholder="Klassenlehrkraft oder Tutor:in" minLength={3} maxLength={50} />
-                <Input className="mt-2" placeholder="E-Mail der Klassenlehrkraft oder Tutor:in (iServ)" type="email" />
+                <Input className="mt-4" placeholder="Klassenlehrkraft oder Tutor:in" minLength={3} maxLength={50}
+                    value={electionData.general.classTeacher.name}
+                    onChange={(e) =>
+                        setElectionData({
+                            ...electionData,
+                            general: {
+                                ...electionData.general,
+                                classTeacher: { ...electionData.general.classTeacher, name: e.target.value },
+                            },
+                        })
+                    }
+                />
+                <Input className="mt-2" placeholder="E-Mail der Klassenlehrkraft oder Tutor:in (iServ)" type="email"
+                    value={electionData.general.classTeacher.email}
+                    onChange={(e) =>
+                        setElectionData({
+                            ...electionData,
+                            general: {
+                                ...electionData.general,
+                                classTeacher: { ...electionData.general.classTeacher, email: e.target.value },
+                            },
+                        })
+                    }
+                />
 
                 <p className="font-normal underline text-foreground mt-4 mb-2">Ankündigung der Wahl:</p>
                 <p>
-                    Die Wahl wurde fristgerecht mindestens drei Tage im Voraus, nämlich am <DateSelect /> mittels
+                    Die Wahl wurde fristgerecht mindestens drei Tage im Voraus, nämlich am <DateSelect
+                        value={electionData.general.electionAnnouncement.on}
+                        onDateChange={(date) =>
+                            setElectionData({
+                                ...electionData,
+                                general: {
+                                    ...electionData.general,
+                                    electionAnnouncement: { ...electionData.general.electionAnnouncement, on: date },
+                                },
+                            })
+                        }
+                    /> mittels
                     <div className="inline-block">
-                        <Select>
+                        <Select
+                            value={electionData.general.electionAnnouncement.using}
+                            onValueChange={(value) =>
+                                setElectionData({
+                                    ...electionData,
+                                    general: {
+                                        ...electionData.general,
+                                        electionAnnouncement: { ...electionData.general.electionAnnouncement, using: value },
+                                    },
+                                })
+                            }
+                        >
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="mündlich im Klassenraum">mündlicher Ansage im Unterricht</SelectItem>
-                                <SelectItem value="per iServ-Nachricht">iServ-E-Mail</SelectItem>
+                                <SelectItem value="per iServ-E-Mail">iServ-E-Mail</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>{" "}
                     durch{" "}
                     <div className="inline-block">
-                        <Select>
+                        <Select
+                            value={electionData.general.electionAnnouncement.by}
+                            onValueChange={(value) =>
+                                setElectionData({
+                                    ...electionData,
+                                    general: {
+                                        ...electionData.general,
+                                        electionAnnouncement: { ...electionData.general.electionAnnouncement, by: value },
+                                    },
+                                })
+                            }
+                        >
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
@@ -77,15 +151,41 @@ export default function SectionGeneral() {
 
                 <p className="font-normal underline text-foreground mt-4 mb-2">Beginn der Wahl:</p>
 
-                <DateTimeSelect />
+                <DateTimeSelect
+                    value={
+                        electionData.general.electionStart
+                    }
+                    onDateChange={(date) => {
+                        setElectionData({
+                            ...electionData,
+                            general: { ...electionData.general, electionStart: date },
+                        });
+                    }}
+                />
 
                 <p className="font-normal underline text-foreground mt-4 mb-2">Anzahl der Schüler:innen</p>
                 <p>
                     Es sind insgesamt{" "}
-                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block text-center" />{" "}
+                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block text-center"
+                        value={electionData.general.numberOfStudents}
+                        onChange={(e) =>
+                            setElectionData({
+                                ...electionData,
+                                general: { ...electionData.general, numberOfStudents: parseInt(e.target.value) || undefined },
+                            })
+                        }                    
+                    />{" "}
                     Schüler:innen wahlberechtigt. Davon sind{" "}
-                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block text-center" /> bei der
-                    Wahl anwesend.
+                    <Input type="text" inputMode="numeric" pattern="[0-9]*" className="w-20 inline-block text-center"
+                        value={electionData.general.numberOfStudentsPresent}
+                        onChange={(e) =>
+                            setElectionData({
+                                ...electionData,
+                                general: { ...electionData.general, numberOfStudentsPresent: parseInt(e.target.value) || undefined },
+                            })
+                        }
+                    />{" "}
+                    bei der Wahl anwesend.
                 </p>
             </CardContent>
         </Card>

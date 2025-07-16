@@ -11,14 +11,24 @@ import { Label } from "@/components/ui/label";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-export default function DateTimeSelect() {
-    const [open, setOpen] = React.useState(false);
-    const [date, setDate] = React.useState<Date | undefined>(undefined);
-    const [isJetztChecked, setIsJetztChecked] = React.useState(false);
+type DateTimeSelectProps = {
+    value: Date | undefined;
+    onDateChange: (value: Date | undefined) => void;
+};
 
-    const [time, setTime] = React.useState<string>("");
+export default function DateTimeSelect({ value, onDateChange }: DateTimeSelectProps) {
+    const [open, setOpen] = React.useState(false);
 
     const checkboxId = React.useId();
+
+    const handleTimeChange = (time: string) => {
+        if (value) {
+            const [hours, minutes] = time.split(":").map(Number);
+            const updatedDate = new Date(value);
+            updatedDate.setHours(hours, minutes);
+            onDateChange(updatedDate);
+        }
+    };
 
     return (
         <div className="flex gap-4">
@@ -30,8 +40,8 @@ export default function DateTimeSelect() {
                             id={React.useId()}
                             className="w-40 justify-between font-normal text-foreground"
                         >
-                            {date
-                                ? date.toLocaleDateString("de-DE", {
+                            {value
+                                ? value.toLocaleDateString("de-DE", {
                                       day: "2-digit",
                                       month: "2-digit",
                                       year: "numeric",
@@ -44,14 +54,21 @@ export default function DateTimeSelect() {
                     <PopoverContent className="w-auto overflow-hidden p-0" align="start">
                         <Calendar
                             mode="single"
-                            selected={date}
+                            selected={value}
                             captionLayout="dropdown"
                             ISOWeek
                             showWeekNumber
                             onSelect={(date) => {
-                                setDate(date);
+                                if (date) {
+                                    const updatedDate = new Date(date);
+                                    if (value) {
+                                        updatedDate.setHours(value.getHours(), value.getMinutes());
+                                    }
+                                    onDateChange(updatedDate);
+                                } else {
+                                    onDateChange(undefined);
+                                }
                                 setOpen(false);
-                                setIsJetztChecked(false); // Uncheck when manually selecting date
                             }}
                         />
                     </PopoverContent>
@@ -61,28 +78,19 @@ export default function DateTimeSelect() {
                 <Input
                     type="time"
                     id={React.useId()}
-                    value={time}
-                    onChange={(e) => {
-                        setTime(e.target.value);
-                        setIsJetztChecked(false);
-                    }}
+                    value={value ? value.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : ""}
+                    onChange={(e) => handleTimeChange(e.target.value)}
                     className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                 />
             </div>
             <div className="flex items-center space-x-2">
                 <Checkbox
                     id={checkboxId}
-                    checked={isJetztChecked}
+                    checked={value?.toDateString() === new Date().toDateString()}
                     onCheckedChange={() => {
-                        if (!isJetztChecked) setIsJetztChecked(true);
-                        setDate(new Date());
+                        const now = new Date();
+                        onDateChange(now);
                         setOpen(false);
-                        setTime(
-                            new Date().toLocaleTimeString("de-DE", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                            }),
-                        );
                     }}
                 />
                 <Label

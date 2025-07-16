@@ -4,16 +4,20 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import React from "react";
 
-export default function DateSelect() {
+type DateSelectProps = {
+    value: Date | undefined;
+    onDateChange: (date: Date | undefined) => void;
+};
+
+export default function DateSelect({ value, onDateChange }: DateSelectProps) {
     const [open, setOpen] = React.useState(false);
-    const [date, setDate] = React.useState<Date | undefined>(undefined);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button variant="outline" id={React.useId()} className="w-40 justify-between font-normal text-foreground">
-                    {date
-                        ? date.toLocaleDateString("de-DE", {
+                    {value
+                        ? value.toLocaleDateString("de-DE", {
                               day: "2-digit",
                               month: "2-digit",
                               year: "numeric",
@@ -26,12 +30,12 @@ export default function DateSelect() {
             <PopoverContent className="w-auto overflow-hidden p-0" align="start">
                 <Calendar
                     mode="single"
-                    selected={date}
+                    selected={value}
                     captionLayout="dropdown"
                     ISOWeek
                     showWeekNumber
                     onSelect={(date) => {
-                        setDate(date);
+                        onDateChange(date);
                         setOpen(false);
                     }}
                 />
