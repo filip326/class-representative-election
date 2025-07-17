@@ -8,16 +8,81 @@ import { Label } from "../ui/label";
 import { TrashIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Separator } from "../ui/separator";
+import { useElectionContext } from "@/context/useElectionContext";
 
 export default function SectionCandidates({ electionType }: { electionType: "representative" | "deputy" }) {
-    const [candidateList, setCandidateList] = useState<string[]>([]);
-    const [candidateVotes, setCandidateVotes] = useState<Record<number, number>>({});
-    const [singleCandidateVotes, setSingleCandidateVotes] = useState({ yes: -1, no: -1, abstain: -1 });
+    const { electionData, setElectionData } = useElectionContext();
 
-    const [candidateName, setCandidateName] = useState("");
+    const candidateVotes = electionData[electionType]?.candidates?.reduce<Record<number, number | undefined>>(
+        (acc, candidate, index) => {
+            acc[index] = candidate.votes;
+            return acc;
+        },
+        {},
+    );
+    function setCandidateVotes(newVotes: Record<number, number | undefined>) {
+        setElectionData({
+            ...electionData,
+            [electionType]: {
+                ...electionData[electionType],
+                candidates:
+                    electionData[electionType]?.candidates?.map((candidate, index) => ({
+                        ...candidate,
+                        votes: newVotes[index] || 0,
+                    })) || [],
+            },
+        });
+    }
+
+    const candidateList =
+        electionData[electionType]?.candidates?.length ?? -1 > 0
+            ? electionData[electionType]?.candidates?.map((candidate) => candidate.name) || []
+            : electionData[electionType]?.singleCandidate?.name
+            ? [electionData[electionType]?.singleCandidate?.name || ""]
+            : [];
+    function setCandidateList(newList: string[]) {
+        if (newList.length === 0) {
+            setElectionData({
+                ...electionData,
+                [electionType]: {
+                    ...electionData[electionType],
+                    candidates: undefined,
+                    singleCandidate: undefined,
+                },
+            });
+            return;
+        }
+
+        if (newList.length === 1) {
+            setElectionData({
+                ...electionData,
+                [electionType]: {
+                    ...electionData[electionType],
+                    candidates: undefined,
+                    singleCandidate: {
+                        name: newList[0],
+                        yesVotes: undefined,
+                        noVotes: undefined,
+                    },
+                },
+            });
+            return;
+        }
+
+        setElectionData({
+            ...electionData,
+            [electionType]: {
+                ...electionData[electionType],
+                candidates: newList.map((name, i) => ({ name, votes: candidateVotes?.[i] || 0 })),
+                singleCandidate: undefined,
+            },
+        });
+    }
+
+    const [addCandidate, setAddCandidate] = useState("");
+
     const [dialogOpen, setDialogOpen] = useState(false);
     const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
-    const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
     const [candidateToRemove, setCandidateToRemove] = useState<number | null>(null);
 
     return (
@@ -57,7 +122,6 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                         size="icon"
                                         onClick={() => {
                                             setCandidateList([]);
-                                            setSingleCandidateVotes({ yes: 0, no: 0, abstain: 0 });
                                         }}
                                     >
                                         <TrashIcon />
@@ -79,12 +143,20 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                     inputMode="numeric"
                                     pattern="[0-9]*"
                                     placeholder="Ja-Stimmen"
-                                    value={singleCandidateVotes.yes === -1 ? "" : singleCandidateVotes.yes}
+                                    value={electionData[electionType]?.singleCandidate?.yesVotes}
                                     onChange={(e) => {
-                                        const votes = e.target.value === "" ? -1 : parseInt(e.target.value, 10);
-                                        setSingleCandidateVotes({
-                                            ...singleCandidateVotes,
-                                            yes: isNaN(votes) ? -1 : votes,
+                                        const votes = isNaN(parseInt(e.target.value))
+                                            ? undefined
+                                            : parseInt(e.target.value, 10) ?? undefined;
+                                        setElectionData({
+                                            ...electionData,
+                                            [electionType]: {
+                                                ...electionData[electionType],
+                                                singleCandidate: {
+                                                    ...electionData[electionType]?.singleCandidate,
+                                                    yesVotes: votes,
+                                                },
+                                            },
                                         });
                                     }}
                                     className="w-40 text-center"
@@ -97,12 +169,20 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                     inputMode="numeric"
                                     pattern="[0-9]*"
                                     placeholder="Nein-Stimmen"
-                                    value={singleCandidateVotes.no === -1 ? "" : singleCandidateVotes.no}
+                                    value={electionData[electionType]?.singleCandidate?.noVotes}
                                     onChange={(e) => {
-                                        const votes = e.target.value === "" ? -1 : parseInt(e.target.value, 10);
-                                        setSingleCandidateVotes({
-                                            ...singleCandidateVotes,
-                                            no: isNaN(votes) ? -1 : votes,
+                                        const votes = isNaN(parseInt(e.target.value))
+                                            ? undefined
+                                            : parseInt(e.target.value, 10) ?? undefined;
+                                        setElectionData({
+                                            ...electionData,
+                                            [electionType]: {
+                                                ...electionData[electionType],
+                                                singleCandidate: {
+                                                    ...electionData[electionType]?.singleCandidate,
+                                                    noVotes: votes,
+                                                },
+                                            },
                                         });
                                     }}
                                     className="w-40 text-center"
@@ -115,17 +195,45 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                     inputMode="numeric"
                                     pattern="[0-9]*"
                                     placeholder="Enthaltungen"
-                                    value={singleCandidateVotes.abstain === -1 ? "" : singleCandidateVotes.abstain}
+                                    value={electionData[electionType]?.enthaltungen}
                                     onChange={(e) => {
-                                        const votes = e.target.value === "" ? -1 : parseInt(e.target.value, 10);
-                                        setSingleCandidateVotes({
-                                            ...singleCandidateVotes,
-                                            abstain: isNaN(votes) ? -1 : votes,
+                                        const votes = isNaN(parseInt(e.target.value))
+                                            ? undefined
+                                            : parseInt(e.target.value, 10) ?? undefined;
+                                        setElectionData({
+                                            ...electionData,
+                                            [electionType]: {
+                                                ...electionData[electionType],
+                                                enthaltungen: votes,
+                                            },
                                         });
                                     }}
                                     className="w-40 text-center"
                                 />
                                 <span className="text-xs mt-1">Enthaltungen</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <Input
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    placeholder="Ungültig"
+                                    value={electionData[electionType]?.incorrectVotes}
+                                    onChange={(e) => {
+                                        const votes = isNaN(parseInt(e.target.value))
+                                            ? undefined
+                                            : parseInt(e.target.value, 10) ?? undefined;
+                                        setElectionData({
+                                            ...electionData,
+                                            [electionType]: {
+                                                ...electionData[electionType],
+                                                incorrectVotes: votes,
+                                            },
+                                        });
+                                    }}
+                                    className="w-40 text-center"
+                                />
+                                <span className="text-xs mt-1">Ungültige Stimmen</span>
                             </div>
                         </div>
                     </div>
@@ -141,12 +249,13 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                             inputMode="numeric"
                                             pattern="[0-9]*"
                                             placeholder="Stimmen"
-                                            value={candidateVotes[index] === -1 ? "" : candidateVotes[index]}
+                                            value={candidateVotes?.[index]}
                                             onChange={(e) => {
-                                                const votes = e.target.value === "" ? -1 : parseInt(e.target.value, 10);
+                                                const votes =
+                                                    e.target.value === "" ? undefined : parseInt(e.target.value, 10);
                                                 setCandidateVotes({
                                                     ...candidateVotes,
-                                                    [index]: isNaN(votes) ? -1 : votes,
+                                                    [index]: votes,
                                                 });
                                             }}
                                             className="w-27 text-right"
@@ -158,7 +267,6 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                                     size="icon"
                                                     onClick={() => {
                                                         setCandidateToRemove(index);
-                                                        setConfirmationDialogOpen(true);
                                                     }}
                                                 >
                                                     <TrashIcon />
@@ -179,10 +287,16 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                     inputMode="numeric"
                                     pattern="[0-9]*"
                                     placeholder="Enthaltungen"
-                                    value={candidateVotes[-1] === -1 ? "" : candidateVotes[-1]}
+                                    value={electionData[electionType]?.enthaltungen}
                                     onChange={(e) => {
-                                        const votes = e.target.value === "" ? -1 : parseInt(e.target.value, 10);
-                                        setCandidateVotes({ ...candidateVotes, [-1]: isNaN(votes) ? -1 : votes });
+                                        const votes = e.target.value === "" ? undefined : parseInt(e.target.value, 10);
+                                        setElectionData({
+                                            ...electionData,
+                                            [electionType]: {
+                                                ...electionData[electionType],
+                                                enthaltungen: votes,
+                                            },
+                                        });
                                     }}
                                     className="w-27 ml-2 text-right"
                                 />
@@ -196,10 +310,16 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                     inputMode="numeric"
                                     pattern="[0-9]*"
                                     placeholder="Ungültig"
-                                    value={candidateVotes[-2] === -1 ? "" : candidateVotes[-2]}
+                                    value={electionData[electionType]?.incorrectVotes}
                                     onChange={(e) => {
-                                        const votes = e.target.value === "" ? -1 : parseInt(e.target.value, 10);
-                                        setCandidateVotes({ ...candidateVotes, [-2]: isNaN(votes) ? -1 : votes });
+                                        const votes = e.target.value === "" ? undefined : parseInt(e.target.value, 10);
+                                        setElectionData({
+                                            ...electionData,
+                                            [electionType]: {
+                                                ...electionData[electionType],
+                                                incorrectVotes: votes,
+                                            },
+                                        });
                                     }}
                                     className="w-27 ml-2 text-right"
                                 />
@@ -223,8 +343,8 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                         </p>
                         <Input
                             placeholder="Name der:des Kandidat:in"
-                            value={candidateName}
-                            onChange={(e) => setCandidateName(e.target.value)}
+                            value={addCandidate}
+                            onChange={(e) => setAddCandidate(e.target.value)}
                         />
                         <Label htmlFor="add-candidate-checkbox" className="ml-2">
                             <Checkbox
@@ -240,7 +360,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                 variant={"secondary"}
                                 onClick={() => {
                                     setDialogOpen(false);
-                                    setCandidateName("");
+                                    setAddCandidate("");
                                 }}
                             >
                                 Abbrechen
@@ -249,8 +369,8 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                 className="flex-1"
                                 disabled={!isCheckboxChecked}
                                 onClick={() => {
-                                    setCandidateList([...candidateList, candidateName].sort());
-                                    setCandidateName("");
+                                    setCandidateList([...candidateList, addCandidate.trim()].sort());
+                                    setAddCandidate("");
                                     setDialogOpen(false);
                                     setIsCheckboxChecked(false);
                                 }}
@@ -261,16 +381,19 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                     </DialogContent>
                 </Dialog>
 
-                <Dialog open={confirmationDialogOpen} onOpenChange={setConfirmationDialogOpen}>
+                <Dialog
+                    open={candidateToRemove !== null}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setCandidateToRemove(null);
+                        }
+                    }}
+                >
                     <DialogContent>
                         <h3 className="text-lg font-semibold mb-2">Bestätigung</h3>
                         <p>Möchten Sie die Kandidatur wirklich zurückziehen?</p>
                         <div className="flex flex-row justify-stretch gap-2 mt-4">
-                            <Button
-                                className="flex-1"
-                                variant="secondary"
-                                onClick={() => setConfirmationDialogOpen(false)}
-                            >
+                            <Button className="flex-1" variant="secondary" onClick={() => setCandidateToRemove(null)}>
                                 Abbrechen
                             </Button>
                             <Button
@@ -280,7 +403,6 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                     if (candidateToRemove !== null) {
                                         setCandidateList(candidateList.filter((_, i) => i !== candidateToRemove));
                                     }
-                                    setConfirmationDialogOpen(false);
                                     setCandidateToRemove(null);
                                 }}
                             >

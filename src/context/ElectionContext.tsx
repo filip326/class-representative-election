@@ -26,8 +26,8 @@ interface ElectionData {
         wahlleiter: string | undefined;
         wahlhelfer: [string | undefined, string | undefined];
     };
-    representative: SingleElection;
-    deputy: SingleElection;
+    representative?: SingleElection;
+    deputy?: SingleElection;
 }
 
 type SingleElection = {
