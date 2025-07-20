@@ -141,7 +141,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
             electionDataSpecific.winner = undefined;
             electionDataSpecific.noWinner = true;
         } else {
-            // mutliple candidates
+            // multiple candidates
             const candidatesSorted = electionDataSpecific.candidates!.sort((a, b) => b.votes - a.votes);
             // check for ties
             const maxVotes = candidatesSorted[0].votes;
