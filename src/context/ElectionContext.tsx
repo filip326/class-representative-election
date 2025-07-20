@@ -30,6 +30,14 @@ interface ElectionData {
     deputy?: SingleElection;
 }
 
+type ElectionEvaluationState =
+    | "notEvaluated" // default state during the election
+    | "stichwahlPending" // if a stichwahl is required and not evaluated
+    | "losPending" // if a los is required and not evaluated
+    | "done" // if everything is evaluated and a winner is determined
+;
+
+
 type SingleElection = {
     candidates?: {
         name: string;
@@ -42,6 +50,8 @@ type SingleElection = {
     };
     incorrectVotes?: number;
     enthaltungen?: number;
+
+    electionEvaluated: ElectionEvaluationState;
 
     stichwahl?: {
         candidates: {
@@ -62,6 +72,7 @@ type SingleElection = {
         email: string;
         acceptsElection: boolean;
     };
+    noWinner?: boolean; // if there was only one candidate and he did not get enough votes
 };
 
 // Create default data
@@ -89,8 +100,12 @@ const defaultElectionData: ElectionData = {
         wahlleiter: undefined,
         wahlhelfer: [undefined, undefined],
     },
-    representative: {},
-    deputy: {},
+    representative: {
+        electionEvaluated: "notEvaluated"
+    },
+    deputy: {
+        electionEvaluated: "notEvaluated"
+    },
 };
 
 // Create context

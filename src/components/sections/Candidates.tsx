@@ -5,10 +5,11 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
-import { TrashIcon } from "lucide-react";
+import { AlertCircleIcon, AlertTriangleIcon, TrashIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Separator } from "../ui/separator";
 import { useElectionContext } from "@/context/useElectionContext";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 export default function SectionCandidates({ electionType }: { electionType: "representative" | "deputy" }) {
     const { electionData, setElectionData } = useElectionContext();
@@ -85,6 +86,102 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
     const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
     const [candidateToRemove, setCandidateToRemove] = useState<number | null>(null);
 
+    let moreVotesThanVoters = false;
+    if (candidateList.length === 1) {
+        moreVotesThanVoters =
+            (electionData[electionType]?.singleCandidate?.yesVotes || 0) +
+                (electionData[electionType]?.singleCandidate?.noVotes || 0) +
+                (electionData[electionType]?.enthaltungen || 0) +
+                (electionData[electionType]?.incorrectVotes || 0) >
+            (electionData.general.numberOfStudentsPresent || 0);
+    } else {
+        const sumOfVotes =
+            electionData[electionType]?.candidates?.reduce<number>(
+                (sum, candidate) => sum + (candidate.votes || 0),
+                0,
+            ) || 0;
+        moreVotesThanVoters = sumOfVotes > (electionData.general.numberOfStudentsPresent || 0);
+    }
+
+    const [evaluateElectionDialog, setEvaluateElectionDialog] = useState(false);
+
+    function evaluateElection() {
+        setEvaluateElectionDialog(false);
+
+        const electionDataSpecific = electionData[electionType];
+
+        if (!electionDataSpecific) return;
+
+        // if single election
+        if (electionDataSpecific?.singleCandidate) {
+            if (
+                electionDataSpecific.singleCandidate.yesVotes >
+                electionDataSpecific.singleCandidate.noVotes + (electionDataSpecific.enthaltungen || 0)
+            ) {
+                // Single candidate - WIN
+                electionDataSpecific.noWinner = false;
+                electionDataSpecific.electionEvaluated = "done";
+                electionDataSpecific.winner = {
+                    name: electionDataSpecific.singleCandidate.name,
+                    email: "",
+                    acceptsElection: false,
+                };
+            } else {
+                // single candidate - NO WIN
+                electionDataSpecific.noWinner = true;
+                electionDataSpecific.electionEvaluated = "done";
+                electionDataSpecific.winner = undefined;
+            }
+        } else if (
+            electionDataSpecific?.candidates?.length == undefined ||
+            electionDataSpecific.candidates.length === 0
+        ) {
+            // no candidates - no win
+            electionDataSpecific.electionEvaluated = "done";
+            electionDataSpecific.winner = undefined;
+            electionDataSpecific.noWinner = true;
+        } else {
+            // mutliple candidates
+            const candidatesSorted = electionDataSpecific.candidates!.sort((a, b) => b.votes - a.votes);
+            // check for ties
+            const maxVotes = candidatesSorted[0].votes;
+            const winners = candidatesSorted.filter((candidate) => candidate.votes === maxVotes);
+            if (winners.length === 1) {
+                // single winner
+                electionDataSpecific.noWinner = false;
+                electionDataSpecific.electionEvaluated = "done";
+                // pass data to next stage
+                electionDataSpecific.winner = {
+                    name: winners[0].name,
+                    email: "",
+                    acceptsElection: false,
+                };
+            } else {
+                // multiple winners (tie)
+                electionDataSpecific.noWinner = true;
+                electionDataSpecific.electionEvaluated = "stichwahlPending";
+                electionDataSpecific.winner = undefined;
+                // store the tied candidates for the next stage
+                electionDataSpecific.stichwahl = {
+                    candidates: winners.map((candidate) => ({
+                        name: candidate.name,
+                        votes: candidate.votes,
+                    })),
+                    enthaltungen: 0,
+                    incorrectVotes: 0,
+                };
+            }
+        }
+
+        // write the data back to the context
+        setElectionData((prev) => ({
+            ...prev,
+            [electionType]: electionDataSpecific,
+        }));
+    }
+
+    const formReadonly = electionData[electionType]?.electionEvaluated !== "notEvaluated";
+
     return (
         <Card>
             <CardHeader>
@@ -123,6 +220,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                         onClick={() => {
                                             setCandidateList([]);
                                         }}
+                                        disabled={formReadonly}
                                     >
                                         <TrashIcon />
                                     </Button>
@@ -160,6 +258,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                         });
                                     }}
                                     className="w-40 text-center"
+                                    readOnly={formReadonly}
                                 />
                                 <span className="text-xs mt-1">Ja-Stimmen</span>
                             </div>
@@ -186,6 +285,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                         });
                                     }}
                                     className="w-40 text-center"
+                                    readOnly={formReadonly}
                                 />
                                 <span className="text-xs mt-1">Nein-Stimmen</span>
                             </div>
@@ -209,6 +309,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                         });
                                     }}
                                     className="w-40 text-center"
+                                    readOnly={formReadonly}
                                 />
                                 <span className="text-xs mt-1">Enthaltungen</span>
                             </div>
@@ -232,6 +333,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                         });
                                     }}
                                     className="w-40 text-center"
+                                    readOnly={formReadonly}
                                 />
                                 <span className="text-xs mt-1">Ungültige Stimmen</span>
                             </div>
@@ -259,6 +361,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                                 });
                                             }}
                                             className="w-27 text-right"
+                                            readOnly={formReadonly}
                                         />
                                         <Tooltip>
                                             <TooltipTrigger>
@@ -268,6 +371,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                                     onClick={() => {
                                                         setCandidateToRemove(index);
                                                     }}
+                                                    disabled={formReadonly}
                                                 >
                                                     <TrashIcon />
                                                 </Button>
@@ -299,6 +403,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                         });
                                     }}
                                     className="w-27 ml-2 text-right"
+                                    readOnly={formReadonly}
                                 />
                             </div>
                         </div>
@@ -322,6 +427,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                                         });
                                     }}
                                     className="w-27 ml-2 text-right"
+                                    readOnly={formReadonly}
                                 />
                             </div>
                         </div>
@@ -330,7 +436,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
 
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button variant={"default"} onClick={() => setDialogOpen(true)}>
+                        <Button variant={"default"} onClick={() => setDialogOpen(true)} disabled={formReadonly}>
                             Kandidat:in hinzufügen
                         </Button>
                     </DialogTrigger>
@@ -381,6 +487,42 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                     </DialogContent>
                 </Dialog>
 
+                <Alert className="border-destructive mt-3">
+                    <AlertTriangleIcon color="red" />
+                    <AlertTitle className="font-semibold text-destructive">
+                        Wahlgang abschließen (irreversibel!)
+                    </AlertTitle>
+                    <AlertDescription>
+                        <p>
+                            Kandidat:innen-Liste und Stimmanzahl finalisieren und auswerten. <br />
+                            Die Kandidat:innen-Liste kann anschließend nicht mehr bearbeitet werden.
+                        </p>
+                        <Dialog open={evaluateElectionDialog} onOpenChange={setEvaluateElectionDialog}>
+                            <DialogTrigger asChild>
+                                <Button onClick={() => setEvaluateElectionDialog(true)} disabled={formReadonly}>
+                                    Wahlgang abschließen
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <h3 className="text-lg font-semibold mb-2">Wahlgang abschließen?</h3>
+                                <p>
+                                    Durch das Abschließen des Wahlgangs wird die Kandidat:innen-Liste finalisiert und
+                                    ausgewertet. Die Kandidat:innen-Liste, einschließlich der Stimmzahlen, können danach{" "}
+                                    <strong>nicht</strong> mehr bearbeitet werden.
+                                </p>
+                                <div className="flex flex-row justify-stretch gap-2 mt-4">
+                                    <Button className="flex-1" onClick={() => setEvaluateElectionDialog(false)}>
+                                        Abbrechen
+                                    </Button>
+                                    <Button className="flex-1" onClick={evaluateElection}>
+                                        Ja, Wahlgang unumkehrbar abschließen.
+                                    </Button>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </AlertDescription>
+                </Alert>
+
                 <Dialog
                     open={candidateToRemove !== null}
                     onOpenChange={(open) => {
@@ -411,6 +553,17 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                         </div>
                     </DialogContent>
                 </Dialog>
+
+                {moreVotesThanVoters && (
+                    <Alert variant={"destructive"} className="border-destructive my-2">
+                        <AlertCircleIcon />
+                        <AlertTitle className="font-bold">Zu viele Stimmen</AlertTitle>
+                        <AlertDescription>
+                            Die Summe der Stimmen darf die Anzahl der anwesenden wahlberechtigten Schüler:innen nicht
+                            übersteigen.
+                        </AlertDescription>
+                    </Alert>
+                )}
             </CardContent>
         </Card>
     );
