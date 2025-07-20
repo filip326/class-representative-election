@@ -78,9 +78,10 @@ export default function DateTimeSelect({ value, onDateChange }: DateTimeSelectPr
                 <Input
                     type="time"
                     id={React.useId()}
-                    value={value ? value.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : ""}
+                    value={value ? value.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit"}) : ""}
                     onChange={(e) => handleTimeChange(e.target.value)}
                     className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                    
                 />
             </div>
             <div className="flex items-center space-x-2">

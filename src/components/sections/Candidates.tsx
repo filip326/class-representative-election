@@ -165,7 +165,7 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
                 electionDataSpecific.stichwahl = {
                     candidates: winners.map((candidate) => ({
                         name: candidate.name,
-                        votes: candidate.votes,
+                        votes: 0, // 0 votes in the tie-breaker election
                     })),
                     enthaltungen: 0,
                     incorrectVotes: 0,

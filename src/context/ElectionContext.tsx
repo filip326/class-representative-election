@@ -63,6 +63,7 @@ type SingleElection = {
     };
 
     los?: {
+        candidates: string[];
         method: string; // e.g. coin toss, drawing lots, etc.
         resultingCandidate?: string;
     };
