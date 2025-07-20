@@ -47,6 +47,19 @@ export default function SectionStichwahl({ electionType }: { electionType: "repr
                 resultingCandidate: undefined,
             };
         }
+
+        setElectionData((prev) => ({
+            ...prev,
+            [electionType]: {
+                ...prev[electionType],
+                stichwahl: {
+                    ...prev[electionType]!.stichwahl,
+                    candidates: prev[electionType]!.stichwahl!.candidates.map((c) =>
+                        c.name === winners[0].name ? { ...c, votes: c.votes + 1 } : c,
+                    ),
+                },
+            },
+        }));
     }
 
     if (
@@ -180,9 +193,7 @@ export default function SectionStichwahl({ electionType }: { electionType: "repr
                             placeholder="Verfahren (z.B. Münzwurf, Stöckchen ziehen, etc.)"
                         />
                         <div className="flex gap-2 justify-start items-baseline my-2">
-                            <p>
-                                Gewählte:r Kandidat:in:
-                            </p>
+                            <p>Gewählte:r Kandidat:in:</p>
                             <Select
                                 value={electionData[electionType].los.resultingCandidate}
                                 onValueChange={(selectedValue) =>
@@ -200,6 +211,7 @@ export default function SectionStichwahl({ electionType }: { electionType: "repr
                                                 email: "",
                                                 acceptsElection: false,
                                             },
+                                            noWinner: false,
                                         },
                                     }))
                                 }
