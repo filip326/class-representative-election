@@ -62,6 +62,15 @@ export default function SectionStichwahl({ electionType }: { electionType: "repr
         }));
     }
 
+    const sumOfVotes =
+        electionData[electionType]?.stichwahl?.candidates.reduce((sum, candidate) => sum + (candidate.votes || 0), 0) ||
+        0;
+    const totalVotes =
+        sumOfVotes +
+        (electionData[electionType]?.stichwahl?.enthaltungen || 0) +
+        (electionData[electionType]?.stichwahl?.incorrectVotes || 0);
+    const moreVotesThanVoters = totalVotes > (electionData.general.numberOfStudentsPresent || 0);
+
     if (
         electionData[electionType]?.electionEvaluated === "notEvaluated" ||
         !electionData[electionType]?.stichwahl?.candidates
@@ -86,7 +95,7 @@ export default function SectionStichwahl({ electionType }: { electionType: "repr
                     </p>
                     <div className="flex flex-col gap-3 py-2">
                         {electionData[electionType].stichwahl.candidates.map((c) => (
-                            <div key={c.name} className="flex flex-row gap-1 justify-between px-2 pr-4">
+                            <div key={c.name} className="flex flex-row gap-1 justify-between items-center px-2 pr-4">
                                 <p className="text-sm font-medium text-foreground">{c.name}</p>
                                 <Input
                                     pattern="^[0-9]*$"
@@ -116,11 +125,74 @@ export default function SectionStichwahl({ electionType }: { electionType: "repr
                                 />
                             </div>
                         ))}
+                        <div className="flex flex-row gap-4 justify-end items-center px-2 pr-4">
+                            <p className="text-sm font-medium text-foreground">Enthaltungen</p>
+                            <Input
+                                pattern="^[0-9]*$"
+                                inputMode="numeric"
+                                type="text"
+                                className="w-20 text-right"
+                                value={electionData[electionType].stichwahl.enthaltungen?.toString() || "0"}
+                                onChange={(e) => {
+                                    const newAbstentions = parseInt(e.target.value, 10);
+                                    if (!isNaN(newAbstentions)) {
+                                        setElectionData((prev) => ({
+                                            ...prev,
+                                            [electionType]: {
+                                                ...prev[electionType],
+                                                stichwahl: {
+                                                    ...prev[electionType]!.stichwahl,
+                                                    enthaltungen: newAbstentions,
+                                                },
+                                            },
+                                        }));
+                                    }
+                                }}
+                                readOnly={electionData[electionType]!.electionEvaluated !== "stichwahlPending"}
+                            />
+                        </div>
+                        <div className="flex flex-row gap-4 justify-end items-center px-2 pr-4">
+                            <p className="text-sm font-medium text-foreground">Ungültige Stimmen</p>
+                            <Input
+                                pattern="^[0-9]*$"
+                                inputMode="numeric"
+                                type="text"
+                                className="w-20 text-right"
+                                value={electionData[electionType].stichwahl.incorrectVotes?.toString() || "0"}
+                                onChange={(e) => {
+                                    const newInvalidVotes = parseInt(e.target.value, 10);
+                                    if (!isNaN(newInvalidVotes)) {
+                                        setElectionData((prev) => ({
+                                            ...prev,
+                                            [electionType]: {
+                                                ...prev[electionType],
+                                                stichwahl: {
+                                                    ...prev[electionType]!.stichwahl,
+                                                    incorrectVotes: newInvalidVotes,
+                                                },
+                                            },
+                                        }));
+                                    }
+                                }}
+                                readOnly={electionData[electionType]!.electionEvaluated !== "stichwahlPending"}
+                            />
+                        </div>
                     </div>
                     <p className="text-xs text-muted-foreground">
                         <strong>Hinweis:</strong> Sollte die Stichwahl erneut zur Stimmgleichheit führen, so wird in der
                         3. Runde gelost.
                     </p>
+
+                    {moreVotesThanVoters && (
+                        <Alert className="border-destructive mt-3">
+                            <AlertTriangleIcon color="red" />
+                            <AlertTitle className="font-semibold text-destructive">Warnung</AlertTitle>
+                            <AlertDescription>
+                                Die Gesamtanzahl der Stimmen überschreitet die Anzahl der anwesenden Schüler:innen.
+                                Bitte überprüft die Eingaben.
+                            </AlertDescription>
+                        </Alert>
+                    )}
 
                     <Alert className="border-destructive mt-3">
                         <AlertTriangleIcon color="red" />
