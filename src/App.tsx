@@ -70,12 +70,11 @@ function App() {
                 <SectionExport />
             </div>
 
-            <footer>
-                {/* Links to imprint and privacy policy */}
+            {/* <footer>
                 <a href="/legal.txt" target="_blank">
                     Rechtliches
                 </a>
-            </footer>
+            </footer> */}
         </ElectionProvider>
     );
 }
