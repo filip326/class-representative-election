@@ -4,6 +4,10 @@ import { format } from "date-fns/format";
 import ElectionPrintable from "./printables/ElectionPrintable";
 import SignHere from "./printables/SignHere";
 import qrcodeSvg from "qrcode-svg";
+import { getWarnings } from "@/lib/dataCheck";
+import { AlertTriangleIcon } from "lucide-react";
+
+import pako from "pako";
 
 const header = (
     <header>
@@ -14,28 +18,35 @@ const header = (
     </header>
 );
 
-function getBarcode(data: unknown,) {
+function genUid() {
+    return window.crypto.randomUUID();
+}
+
+function getBarcode(data: unknown) {
     const dataString = JSON.stringify(data);
     const encoder = new TextEncoder();
     const dataBuffer = encoder.encode(dataString);
-    const dataBufferBase64 = `---WAHLNIEDERSCHRIFT---\n${btoa(String.fromCharCode(...dataBuffer))
+    console.log("QR Code data length: ", dataBuffer.length);
+    const compressed = pako.deflate(dataBuffer);
+    console.log("QR Code compressed length: ", compressed.length);
+    const dataBufferBase64 = `${btoa(String.fromCharCode(...compressed))
         .split("")
         .reduce<string[]>((acc, char, i) => {
             acc.push(char);
             if (i % 30 === 0 && i !== 0) acc.push("\n");
             return acc;
         }, [])
-        .join("")}\n---END OF WAHLNIEDERSCHRIFT---`;
+        .join("")}`;
 
+    console.log("QR Code base64 length: ", dataBufferBase64.length);
     const qrCode = new qrcodeSvg(dataBufferBase64);
-    return qrCode.svg();
+    return qrCode.svg({
+        container: "svg",
+    });
 }
 
 export default function SectionPrintable() {
-
     const { electionData } = useElectionContext();
-
-    const qrCode = getBarcode(electionData);
 
     const dateStart = electionData.general.electionStart
         ? format(electionData.general.electionStart, "yyyy-MM-dd")
@@ -49,8 +60,39 @@ export default function SectionPrintable() {
         ? format(electionData.general.electionEnd, "yyyy-MM-dd")
         : "";
 
+    const warnings = getWarnings(electionData, false);
+    const extendedWarnings = getWarnings(electionData, true);
+    const electionUid = genUid();
+
+    const qrCode = getBarcode({ ...electionData, uid: electionUid, warnings: extendedWarnings, timestamp: Date.now() });
+
     return (
         <>
+            {warnings.length > 0 && (
+                <div className=" p-4 mb-4 rounded" style={{ breakAfter: "page" }}>
+                    <h1 className="text-3xl font-bold mb-2 text-center flex items-center justify-center gap-2 text-red-800">
+                        <AlertTriangleIcon />
+                        Warnung!
+                        <AlertTriangleIcon />
+                    </h1>
+                    <p>
+                        Die automatische Überprüfung der Wahlniederschrift hat folgende Fehler erkannt.
+                        <br />
+                        Bitte überprüfen Sie die Angaben auf Richtigkeit und Vollständigkeit. Sollten Sie sich
+                        vergewissert haben, dass alle Angaben korrekt sind, können Sie die Wahlniederschrift dennoch
+                        einreichen und die Hinweise ignorieren.
+                    </p>
+                    <ul className="list-disc pl-5">
+                        {warnings.map((warning, index) => (
+                            <li key={index}>{warning}</li>
+                        ))}
+                    </ul>
+                    <p className="text-xl font-bold mt-5">
+                        Bitte drucken Sie diese Seite nicht mit aus und reichen nur die folgenden Seiten ein. Diese
+                        Seite dient nur zu Ihrer Information.
+                    </p>
+                </div>
+            )}
             {header}
             <main>
                 <h2 className="font-bold mt-5 text-xl">Allgemeine Angaben</h2>
@@ -138,6 +180,12 @@ export default function SectionPrintable() {
                 >
                     <ElectionPrintable wahlgang={2} electionType={"deputy"} electionData={electionData.deputy!} />
                 </div>
+                {electionData.general.comments && (
+                    <div className="border-2 mx-2 my-1 p-1">
+                        <h3 className="font-bold">Anmerkungen</h3>
+                        <p>{electionData.general.comments}</p>
+                    </div>
+                )}
                 <h2 className="text-2xl font-bold">Ende der Wahl</h2>
                 <p>
                     Die Wahl endete am {electionEndDate} um{" "}
@@ -162,6 +210,7 @@ export default function SectionPrintable() {
                         ))}
                     </div>
                 </p>
+                <hr className="my-5" />
                 <h3 className="font-bold underline text-xl mt-5">Nur zu internen Prüfung durch die SV</h3>
                 <div className="grid grid-cols-2 mb-5">
                     <div className="border-black" dangerouslySetInnerHTML={{ __html: qrCode }} />
