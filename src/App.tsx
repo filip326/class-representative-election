@@ -9,8 +9,34 @@ import SectionVotingCommittee from "./components/sections/VotingCommittee";
 import SectionWinner from "./components/sections/Winner";
 import { Separator } from "./components/ui/separator";
 import { ElectionProvider } from "./context/ElectionContext";
+import { useState, useEffect } from "react";
+import SectionPrintable from "./components/printable";
+import ReactDOM from "react-dom";
 
 function App() {
+    const [isPrintMode, setIsPrintMode] = useState(false);
+
+    useEffect(() => {
+        const handleBeforePrint = () => ReactDOM.flushSync(() => setIsPrintMode(true));
+        const handleAfterPrint = () => setIsPrintMode(false);
+
+        window.addEventListener("beforeprint", handleBeforePrint);
+        window.addEventListener("afterprint", handleAfterPrint);
+
+        return () => {
+            window.removeEventListener("beforeprint", handleBeforePrint);
+            window.removeEventListener("afterprint", handleAfterPrint);
+        };
+    }, []);
+
+    if (isPrintMode) {
+        return (
+            <ElectionProvider>
+                <SectionPrintable />
+            </ElectionProvider>
+        );
+    }
+
     return (
         <ElectionProvider>
             <div className="flex flex-col mt-5 gap-10 max-w-[800px] w-[90vw] mx-auto">
@@ -27,29 +53,28 @@ function App() {
 
                 <SectionCandidates electionType="representative" />
                 <SectionStichwahl electionType="representative" />
-                <SectionWinner  electionType="representative" />
+                <SectionWinner electionType="representative" />
 
                 <Separator />
-                
+
                 <h2 className="text-xl font-bold">2. Wahlgang: stellvertretende:r Klassensprecher:in</h2>
 
                 <SectionCandidates electionType="deputy" />
                 <SectionStichwahl electionType="deputy" />
-                <SectionWinner  electionType="deputy" />
+                <SectionWinner electionType="deputy" />
 
                 <Separator />
 
                 <h2 className="text-xl font-bold">Abschluss</h2>
                 <SectionEnd />
                 <SectionExport />
-
             </div>
 
             <footer>
-
-                <a href="">Impressum</a>
-                <a href="">Datenschutz</a>
-
+                {/* Links to imprint and privacy policy */}
+                <a href="/legal.txt" target="_blank">
+                    Rechtliches
+                </a>
             </footer>
         </ElectionProvider>
     );

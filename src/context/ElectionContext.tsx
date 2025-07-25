@@ -123,3 +123,4 @@ export const ElectionProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 };
 
 export { ElectionContext };
+export type { ElectionData, SingleElection, ElectionEvaluationState };

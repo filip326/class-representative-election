@@ -1,12 +1,6 @@
-import { DownloadIcon, FileIcon } from "lucide-react";
-import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { useElectionContext } from "@/context/useElectionContext";
-
 
 export default function SectionExport() {
-    const { electionData } = useElectionContext();
-
     return (
         <Card>
             <CardHeader>
@@ -23,16 +17,11 @@ export default function SectionExport() {
                     </li>
                 </ol>
 
-                <Button>
-                    <DownloadIcon />
-                    Walniederschrift herunterladen
-                    <FileIcon />
-                </Button>
-
-                <div className="mt-4">
-                    <h2 className="text-xl font-bold">Export</h2>
-                    <pre>{JSON.stringify(electionData, null, 2)}</pre>
-                </div>
+                <h3 className="mt-4 font-semibold">Exportieren</h3>
+                <p>
+                    Zum Exportieren der Wahlniederschrift, nutzen Sie bitte die Tastenkombination <code>STRG</code> +{" "}
+                    <code>P</code> oder die Drucken Schaltfläche im Menü Ihres Web-Browsers.
+                </p>
             </CardContent>
         </Card>
     );
