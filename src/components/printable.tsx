@@ -191,7 +191,6 @@ export default function SectionPrintable() {
                 <hr />
                 <p>Wahlniederschrift Klassensprecherwahl</p>
                 <p className="text-[0.6em]">
-                    Genutzte Software: <br />
                     &copy; 2025 Schülververtretung Gymnasium Riedberg
                     <br />
                     Software by Filip Lukas Paidar

@@ -69,12 +69,6 @@ function App() {
                 <SectionEnd />
                 <SectionExport />
             </div>
-
-            {/* <footer>
-                <a href="/legal.txt" target="_blank">
-                    Rechtliches
-                </a>
-            </footer> */}
         </ElectionProvider>
     );
 }
