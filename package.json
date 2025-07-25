@@ -11,7 +11,7 @@
     "predeploy": "pnpm run build",
     "deploy": "gh-pages -d dist"
   },
-  "homepage": "https://filip326.github.io/class-representative-election/",
+  "homepage": "https://sv-wahl.teschnik.de/",
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-checkbox": "^1.3.2",
