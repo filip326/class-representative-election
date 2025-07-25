@@ -110,8 +110,6 @@ export function getWarnings(data: ElectionData, extended: boolean = false): stri
         if (data.general.comments) {
             warnings.push("Es gibt Anmerkungen oder Ergänzungen zur Wahl, die ggf. erhöhte Aufmerksamkeit erfordern.");
         }
-
-        // check the sum of the votes and compare it
     }
 
     return warnings;
