@@ -22,7 +22,7 @@ function genUid() {
     return window.crypto.randomUUID();
 }
 
-function getBarcode(data: unknown) {
+function GetBarcode({ data, uid }: { data: unknown; uid: string }) {
     const dataString = JSON.stringify(data);
     const encoder = new TextEncoder();
     const dataBuffer = encoder.encode(dataString);
@@ -39,10 +39,29 @@ function getBarcode(data: unknown) {
         .join("")}`;
 
     console.log("QR Code base64 length: ", dataBufferBase64.length);
-    const qrCode = new qrcodeSvg(dataBufferBase64);
-    return qrCode.svg({
-        container: "svg",
-    });
+    const parts = [];
+    // parts by at most 150 characters
+    for (let i = 0; i < dataBufferBase64.length; i += 150) {
+        parts.push(dataBufferBase64.slice(i, i + 150));
+    }
+
+    return (
+        <>
+            {parts.map((part, index, arr) => (
+                <div
+                    className="break-inside-avoid"
+                    dangerouslySetInnerHTML={{
+                        __html: new qrcodeSvg({
+                            content: `${uid}:${index}:${arr.length}::${part}`,
+                            ecl: "Q",
+                            width: 150,
+                            height: 150,
+                        }).svg(),
+                    }}
+                />
+            ))}
+        </>
+    );
 }
 
 export default function SectionPrintable() {
@@ -63,8 +82,6 @@ export default function SectionPrintable() {
     const warnings = getWarnings(electionData, false);
     const extendedWarnings = getWarnings(electionData, true);
     const electionUid = genUid();
-
-    const qrCode = getBarcode({ ...electionData, uid: electionUid, warnings: extendedWarnings, timestamp: Date.now() });
 
     return (
         <>
@@ -213,7 +230,12 @@ export default function SectionPrintable() {
                 <hr className="my-5" />
                 <h3 className="font-bold underline text-xl mt-5">Nur zu internen Prüfung durch die SV</h3>
                 <div className="grid grid-cols-2 mb-5">
-                    <div className="border-black" dangerouslySetInnerHTML={{ __html: qrCode }} />
+                    <div className="grid grid-cols-2">
+                        <GetBarcode
+                            data={{ ...electionData, warnings: extendedWarnings, timestamp: Date.now() }}
+                            uid={electionUid}
+                        />
+                    </div>
                     <div>
                         <p className="">Vom SV-Vorstand geprüft:</p>
                         <div
@@ -232,7 +254,7 @@ export default function SectionPrintable() {
                         >
                             Datum
                         </div>
-                        <SignHere omitDate={true} />
+                        <SignHere omitDate={true} name="Vorstandsmitglied SV" />
                     </div>
                 </div>
             </main>

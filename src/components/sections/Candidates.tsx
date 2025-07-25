@@ -99,7 +99,8 @@ export default function SectionCandidates({ electionType }: { electionType: "rep
             electionData[electionType]?.candidates?.reduce<number>(
                 (sum, candidate) => sum + (candidate.votes || 0),
                 0,
-            ) || 0;
+            ) ||
+            0 + (electionData[electionType]?.enthaltungen || 0) + (electionData[electionType]?.incorrectVotes || 0);
         moreVotesThanVoters = sumOfVotes > (electionData.general.numberOfStudentsPresent || 0);
     }
 
