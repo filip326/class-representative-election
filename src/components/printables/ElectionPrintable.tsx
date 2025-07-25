@@ -4,6 +4,7 @@
 // electionData: SingleElectionData
 
 import type { SingleElection } from "@/context/ElectionContext";
+import SignHere from "./SignHere";
 
 export default function ElectionPrintable({
     wahlgang,
@@ -92,15 +93,20 @@ export default function ElectionPrintable({
                         gewählt.
                     </p>
                 ) : (
-                    <p>
-                        Es wurde <strong>{electionData.winner.name}</strong> zum{" "}
-                        <strong>
-                            {electionType === "representative"
-                                ? "Klassensprecher:in"
-                                : "stellvertretende:r Klassensprecher:in"}{" "}
-                        </strong>{" "}
-                        gewählt.
-                    </p>
+                    <>
+                        <p>
+                            Es wurde <strong>{electionData.winner.name}</strong> zur:m{" "}
+                            <strong>
+                                {electionType === "representative"
+                                    ? "Klassensprecher:in"
+                                    : "stellvertretende:r Klassensprecher:in"}{" "}
+                            </strong>{" "}
+                            gewählt.
+                            <br />
+                            Der:die Kandidat:in nimmt die Wahl an.
+                        </p>
+                        <SignHere name={electionData.winner.name} />
+                    </>
                 )}
             </>
         );
@@ -130,7 +136,109 @@ export default function ElectionPrintable({
                         </td>
                     </tr>
                 ))}
+                <tr>
+                    <td style={{ border: "1px solid black", padding: "4px 8px", width: "80%" }} className="mt-4">
+                        Enthaltungen
+                    </td>
+                    <td style={{ border: "1px solid black", padding: "4px 8px", textAlign: "center", width: "20%" }}>
+                        {electionData.enthaltungen}
+                    </td>
+                </tr>
+                <tr>
+                    <td style={{ border: "1px solid black", padding: "4px 8px", width: "80%" }}>Ungültig</td>
+                    <td style={{ border: "1px solid black", padding: "4px 8px", textAlign: "center", width: "20%" }}>
+                        {electionData.incorrectVotes}
+                    </td>
+                </tr>
             </table>
+            {electionData.stichwahl && (
+                <>
+                    Aufgrund von Stimmgleichheit musste eine Stichwahl durchgeführt werden.
+                    <table>
+                        {electionData.stichwahl.candidates!.map((candidate, index) => (
+                            <tr key={index}>
+                                <td style={{ border: "1px solid black", padding: "4px 8px", width: "80%" }}>
+                                    {candidate.name}
+                                </td>
+                                <td
+                                    style={{
+                                        border: "1px solid black",
+                                        padding: "4px 8px",
+                                        textAlign: "center",
+                                        width: "20%",
+                                    }}
+                                >
+                                    {candidate.votes}
+                                </td>
+                            </tr>
+                        ))}
+                        <tr>
+                            <td
+                                style={{ border: "1px solid black", padding: "4px 8px", width: "80%" }}
+                                className="mt-4"
+                            >
+                                Enthaltungen
+                            </td>
+                            <td
+                                style={{
+                                    border: "1px solid black",
+                                    padding: "4px 8px",
+                                    textAlign: "center",
+                                    width: "20%",
+                                }}
+                            >
+                                {electionData.stichwahl.enthaltungen}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style={{ border: "1px solid black", padding: "4px 8px", width: "80%" }}>Ungültig</td>
+                            <td
+                                style={{
+                                    border: "1px solid black",
+                                    padding: "4px 8px",
+                                    textAlign: "center",
+                                    width: "20%",
+                                }}
+                            >
+                                {electionData.stichwahl.incorrectVotes}
+                            </td>
+                        </tr>
+                    </table>
+                </>
+            )}
+            {electionData.los && (
+                <p>
+                    Aufgrund von anhaltender Stimmgleichheit wurde zwischen{" "}
+                    <strong>{electionData.los.candidates.join(", ")}</strong> gelost.
+                    <br />
+                    Der:die Wahlleiter:in hat folgendes Verfahren gewählt: <br />
+                    <i className="italic">{electionData.los.method}</i>
+                    <br />
+                    Das Los fiel auf <strong>{electionData.los.resultingCandidate}</strong>.
+                </p>
+            )}
+            {electionData.noWinner || !electionData.winner ? (
+                <p>
+                    Es wurde kein:e{" "}
+                    {electionType === "representative" ? "Klassensprecher:in" : "stellvertretende:r Klassensprecher:in"}{" "}
+                    gewählt.
+                </p>
+            ) : (
+                <>
+                    <p>
+                        Es wurde <strong>{electionData.winner.name}</strong> zur:m{" "}
+                        <strong>
+                            {electionType === "representative"
+                                ? "Klassensprecher:in"
+                                : "stellvertretende:r Klassensprecher:in"}{" "}
+                        </strong>{" "}
+                        gewählt.
+                        <br />
+                        Der:die Kandidat:in nimmt die Wahl an.
+                    </p>
+                    <SignHere name={electionData.winner.name} />
+                </>
+            )}
         </>
     );
 }

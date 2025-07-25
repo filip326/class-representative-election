@@ -20,7 +20,8 @@ export default function SectionExport() {
                 <h3 className="mt-4 font-semibold">Exportieren</h3>
                 <p>
                     Zum Exportieren der Wahlniederschrift, nutzen Sie bitte die Tastenkombination <code>STRG</code> +{" "}
-                    <code>P</code> oder die Drucken Schaltfläche im Menü Ihres Web-Browsers.
+                    <code>P</code> oder die Drucken Schaltfläche im Menü Ihres Web-Browsers. Sie können von dort aus
+                    die Wahlniederschrift als PDF exportieren oder ausrucken.
                 </p>
             </CardContent>
         </Card>
