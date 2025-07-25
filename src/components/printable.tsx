@@ -3,6 +3,7 @@ import svLogo from "../assets/sv-logo.png";
 import { format } from "date-fns/format";
 import ElectionPrintable from "./printables/ElectionPrintable";
 import SignHere from "./printables/SignHere";
+import qrcodeSvg from "qrcode-svg";
 
 const header = (
     <header>
@@ -13,8 +14,28 @@ const header = (
     </header>
 );
 
+function getBarcode(data: unknown,) {
+    const dataString = JSON.stringify(data);
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(dataString);
+    const dataBufferBase64 = `---WAHLNIEDERSCHRIFT---\n${btoa(String.fromCharCode(...dataBuffer))
+        .split("")
+        .reduce<string[]>((acc, char, i) => {
+            acc.push(char);
+            if (i % 30 === 0 && i !== 0) acc.push("\n");
+            return acc;
+        }, [])
+        .join("")}\n---END OF WAHLNIEDERSCHRIFT---`;
+
+    const qrCode = new qrcodeSvg(dataBufferBase64);
+    return qrCode.svg();
+}
+
 export default function SectionPrintable() {
+
     const { electionData } = useElectionContext();
+
+    const qrCode = getBarcode(electionData);
 
     const dateStart = electionData.general.electionStart
         ? format(electionData.general.electionStart, "yyyy-MM-dd")
@@ -27,7 +48,6 @@ export default function SectionPrintable() {
     const electionEndDate = electionData.general.electionEnd
         ? format(electionData.general.electionEnd, "yyyy-MM-dd")
         : "";
-
 
     return (
         <>
@@ -142,7 +162,42 @@ export default function SectionPrintable() {
                         ))}
                     </div>
                 </p>
+                <h3 className="font-bold underline text-xl mt-5">Nur zu internen Prüfung durch die SV</h3>
+                <div className="grid grid-cols-2 mb-5">
+                    <div className="border-black" dangerouslySetInnerHTML={{ __html: qrCode }} />
+                    <div>
+                        <p className="">Vom SV-Vorstand geprüft:</p>
+                        <div
+                            style={{
+                                borderTop: "1px solid black",
+                                marginTop: "1cm",
+                            }}
+                        >
+                            Vorstandsmitglied
+                        </div>
+                        <div
+                            style={{
+                                borderTop: "1px solid black",
+                                marginTop: "1cm",
+                            }}
+                        >
+                            Datum
+                        </div>
+                        <SignHere omitDate={true} />
+                    </div>
+                </div>
             </main>
+            <footer className="text-2xs text-muted-foreground text-center">
+                <hr />
+                <p>Wahlniederschrift Klassensprecherwahl</p>
+                <p className="text-[0.6em]">
+                    Genutzte Software: <br />
+                    &copy; 2025 Schülververtretung Gymnasium Riedberg
+                    <br />
+                    Software by Filip Lukas Paidar
+                </p>
+                <img src={svLogo} alt="SV Logo" className="mx-auto h-10" />
+            </footer>
         </>
     );
 }

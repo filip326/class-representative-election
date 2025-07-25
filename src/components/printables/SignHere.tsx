@@ -1,7 +1,7 @@
 import { format } from "date-fns"
 
 
-export default function SignHere({name}: {name?: string}) {
+export default function SignHere({name, omitDate}: {name?: string, omitDate?: boolean}) {
     // a field to sign
 
     const date = format(new Date(), "yyyy-MM-dd");
@@ -22,7 +22,7 @@ export default function SignHere({name}: {name?: string}) {
                 marginBottom: 0,
                 fontSize: "0.7em",
             }}>
-                in FFM am {date}
+                {omitDate === true || `in FFM am ${date}`}
             </div>
         </div>
     )
