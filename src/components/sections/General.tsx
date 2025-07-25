@@ -117,8 +117,8 @@ export default function SectionGeneral() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="mündlich im Klassenraum">mündlicher Ansage im Unterricht</SelectItem>
-                                <SelectItem value="per iServ-E-Mail">iServ-E-Mail</SelectItem>
+                                <SelectItem value="mündlicher Mitteilung im Klassenraum">mündlicher Mitteilung im Klassenraum</SelectItem>
+                                <SelectItem value="iServ-E-Mail">iServ-E-Mail</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>{" "}
