@@ -12,6 +12,7 @@ import { ElectionProvider } from "./context/ElectionContext";
 import { useState, useEffect } from "react";
 import SectionPrintable from "./components/printable";
 import ReactDOM from "react-dom";
+import { Link } from 'react-router-dom';
 
 function App() {
     const [isPrintMode, setIsPrintMode] = useState(false);
@@ -68,6 +69,10 @@ function App() {
                 <h2 className="text-xl font-bold">Abschluss</h2>
                 <SectionEnd />
                 <SectionExport />
+
+                <Separator />
+
+                <Link to="/imprint" className="text-blue-500 underline">Impressum</Link>
             </div>
         </ElectionProvider>
     );

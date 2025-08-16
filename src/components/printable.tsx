@@ -6,8 +6,8 @@ import SignHere from "./printables/SignHere";
 import qrcodeSvg from "qrcode-svg";
 import { getWarnings } from "@/lib/dataCheck";
 import { AlertTriangleIcon } from "lucide-react";
-
 import pako from "pako";
+
 
 const header = (
     <header>
@@ -18,8 +18,9 @@ const header = (
     </header>
 );
 
-function genUid() {
-    return window.crypto.randomUUID();
+function genUid(className: string) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    return `${className}-${Array.from({ length: 4 }, () => chars.at(Math.floor(Math.random() * chars.length)) || "").join("")}`
 }
 
 function GetBarcode({ data, uid }: { data: unknown; uid: string }) {
@@ -40,22 +41,22 @@ function GetBarcode({ data, uid }: { data: unknown; uid: string }) {
 
     console.log("QR Code base64 length: ", dataBufferBase64.length);
     const parts = [];
-    // parts by at most 150 characters
-    for (let i = 0; i < dataBufferBase64.length; i += 150) {
-        parts.push(dataBufferBase64.slice(i, i + 150));
+    // parts by at most 800 characters
+    for (let i = 0; i < dataBufferBase64.length; i += 800) {
+        parts.push(dataBufferBase64.slice(i, i + 800));
     }
 
     return (
         <>
             {parts.map((part, index, arr) => (
                 <div
-                    className="break-inside-avoid"
+                    className="break-inside-avoid mw-[10cm]"
                     dangerouslySetInnerHTML={{
                         __html: new qrcodeSvg({
                             content: `${uid}:${index}:${arr.length}::${part}`,
                             ecl: "Q",
-                            width: 150,
-                            height: 150,
+                            width: 300,
+                            height: 300,
                         }).svg(),
                     }}
                 />
@@ -81,7 +82,7 @@ export default function SectionPrintable() {
 
     const warnings = getWarnings(electionData, false);
     const extendedWarnings = getWarnings(electionData, true);
-    const electionUid = genUid();
+    const electionUid = genUid(electionData.general.tutorium || "N/A");
 
     return (
         <>
@@ -108,10 +109,14 @@ export default function SectionPrintable() {
                         Bitte drucken Sie diese Seite nicht mit aus und reichen nur die folgenden Seiten ein. Diese
                         Seite dient nur zu Ihrer Information.
                     </p>
+                    <p className="text-xs">
+                        ID: {electionUid}
+                    </p>
                 </div>
             )}
             {header}
             <main>
+                <p>UID: <span className="font-bold" style={{ fontFamily: 'Consolas, monospace' }}>{electionUid}</span></p>
                 <h2 className="font-bold mt-5 text-xl">Allgemeine Angaben</h2>
                 <div className="grid grid-cols-4">
                     <p>
@@ -187,6 +192,7 @@ export default function SectionPrintable() {
                         electionType={"representative"}
                         electionData={electionData.representative!}
                     />
+                    <p>UID: <span className="font-bold" style={{ fontFamily: 'Consolas, monospace' }}>{electionUid}</span></p>
                 </div>
                 <div
                     style={{
@@ -196,6 +202,7 @@ export default function SectionPrintable() {
                     }}
                 >
                     <ElectionPrintable wahlgang={2} electionType={"deputy"} electionData={electionData.deputy!} />
+                    <p>UID: <span className="font-bold" style={{ fontFamily: 'Consolas, monospace' }}>{electionUid}</span></p>
                 </div>
                 {electionData.general.comments && (
                     <div className="border-2 mx-2 my-1 p-1">
@@ -204,6 +211,7 @@ export default function SectionPrintable() {
                     </div>
                 )}
                 <h2 className="text-2xl font-bold">Ende der Wahl</h2>
+                <p>UID: <span className="font-bold" style={{ fontFamily: 'Consolas, monospace' }}>{electionUid}</span></p>
                 <p>
                     Die Wahl endete am {electionEndDate} um{" "}
                     {electionData.general.electionEnd?.toLocaleTimeString("de-DE", {
@@ -229,8 +237,9 @@ export default function SectionPrintable() {
                 </p>
                 <hr className="my-5" />
                 <h3 className="font-bold underline text-xl mt-5">Nur zu internen Prüfung durch die SV</h3>
+                <p>UID: <span className="font-bold" style={{ fontFamily: 'Consolas, monospace' }}>{electionUid}</span></p>
                 <div className="grid grid-cols-2 mb-5">
-                    <div className="grid grid-cols-2">
+                    <div className="">
                         <GetBarcode
                             data={{ ...electionData, warnings: extendedWarnings, timestamp: Date.now() }}
                             uid={electionUid}
@@ -266,7 +275,7 @@ export default function SectionPrintable() {
                     <br />
                     Software by Filip Lukas Paidar
                 </p>
-                <img src={svLogo} alt="SV Logo" className="mx-auto h-10" />
+                <img src={svLogo} alt="SV Logo" className="mx-auto h-10" style={{ pageBreakInside: "avoid" }}/>
             </footer>
         </>
     );
