@@ -20,7 +20,17 @@ const header = (
 
 function genUid(className: string) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    return `${className}-${Array.from({ length: 4 }, () => chars.at(Math.floor(Math.random() * chars.length)) || "").join("")}`
+
+    // put the UID in the head > title before returning
+    const titleElement = document.querySelector<HTMLTitleElement>("head > title");
+
+    const uid = `${className}-${Array.from({ length: 4 }, () => chars.at(Math.floor(Math.random() * chars.length)) || "").join("")}`
+
+    if (titleElement) {
+        titleElement.textContent = `GRB Klassensprecherwahl - ${uid}`;
+    }
+
+    return uid;
 }
 
 function GetBarcode({ data, uid }: { data: unknown; uid: string }) {
