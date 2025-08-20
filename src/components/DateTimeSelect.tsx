@@ -30,6 +30,27 @@ export default function DateTimeSelect({ value, onDateChange }: DateTimeSelectPr
         }
     };
 
+    // Check if the current value is close to "now" (within 2 minutes)
+    const isCloseToNow = React.useMemo(() => {
+        if (!value) return false;
+        const now = new Date();
+        const timeDiffMs = Math.abs(now.getTime() - value.getTime());
+        const timeDiffMinutes = timeDiffMs / (1000 * 60);
+        return timeDiffMinutes <= 2;
+    }, [value]);
+
+    const handleJetztChange = (checked: boolean) => {
+        if (checked) {
+            // User wants to set to "now"
+            const now = new Date();
+            onDateChange(now);
+            setOpen(false);
+        } else {
+            // User wants to uncheck - we'll leave the current date/time but it's no longer "now"
+            // The checkbox will naturally uncheck since isCloseToNow will be false
+        }
+    };
+
     return (
         <div className="flex gap-4">
             <div className="flex flex-col gap-3">
@@ -87,12 +108,8 @@ export default function DateTimeSelect({ value, onDateChange }: DateTimeSelectPr
             <div className="flex items-center space-x-2">
                 <Checkbox
                     id={checkboxId}
-                    checked={value?.toDateString() === new Date().toDateString()}
-                    onCheckedChange={() => {
-                        const now = new Date();
-                        onDateChange(now);
-                        setOpen(false);
-                    }}
+                    checked={isCloseToNow}
+                    onCheckedChange={handleJetztChange}
                 />
                 <Label
                     htmlFor={checkboxId}
